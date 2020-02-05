@@ -8,30 +8,20 @@ let countOfBeersPerPage = 20;
 //data for urls for listing IDs requesting
 let listOfIDs = [1,2,3];
 
-//place which will include list of beers
+//place which will include list of products
 const sectionBody = document.querySelector('.section-body');
-
-// const dataFromServer;
-// let promise = new Promise(((resolve, reject) => {
-//     dataFromServer = fetch(requestPaginationUrl);
-//     if (dataFromServer.ok) {
-//         let json = dataFromServer.json();
-//
-//     }
-// }))
 
 function sendRequest(url) {
     return fetch(url).then(response => {
         if (response.ok) {
-            return response.json();    //return response.text();
+            return response.json();
         }
-
         return response.json().then(error => {
             const err = new Error('Something wrong');
             err.data = error;
             throw err;
-        })
-    })
+        });
+    });
 }
 
 function createRequest(goal) {
@@ -45,12 +35,14 @@ function createRequest(goal) {
     }
 }
 
-function createElement(tag, appendParameter, className, text = null, src = null) {
+function createElement(tag, appendParameter, className, text = null, src = null, type = null, name = null) {
     const elem = document.createElement(tag);
     if (appendParameter) appendParameter.append(elem);
     if (className) elem.classList.add(className);
     if (text) elem.innerHTML = text;
     if (src) elem.src = src;
+    if (type) elem.type = type;
+    if (name) elem.name = name;
     return elem;
 }
 
@@ -67,6 +59,10 @@ function createListOfProducts() {
                 createElement('h1', sectionBodyItemAnnotation, 'section-body-item-annotation__name', listOfProducts[i].name);
                 createElement('h2', sectionBodyItemAnnotation, 'section-body-item-annotation__tagline', listOfProducts[i].tagline);
                 createElement('h4', sectionBodyItemAnnotation, 'section-body-item-annotation__description', listOfProducts[i].description);
+                let label = createElement('label', sectionBodyItemAnnotation, 'container-checkbox', 'Add');
+                createElement('input', label, 'container-checkbox__checkbox', null, null, 'checkbox', `id${i}`);
+                createElement('span', label, 'container-checkbox__checkmark');
+
             }
         })
         .catch(err => console.error(err));
