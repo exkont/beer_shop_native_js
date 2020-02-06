@@ -3,7 +3,7 @@ body {
     padding: 0;
 }
 
-.content {
+.content-main, .content-bucket {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 0.625rem;
