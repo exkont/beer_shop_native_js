@@ -2,12 +2,14 @@ const url = 'https://api.punkapi.com/v2/beers?';
 
 //data for urls for pagination requesting
 let page = 1;
+let maxCountOfPages = 5;
 let countOfBeersPerPage = 20;
 
 //bucket data
-let storageListOfIDs = localStorage.getItem('listOfIDs') ?
+let storageArrayOfIDs = localStorage.getItem('listOfIDs') ?
     localStorage.getItem('listOfIDs').split('|').map(e => Number(e)) : [];
-let setOfIDs = new Set(storageListOfIDs);
+let setOfIDs = new Set(storageArrayOfIDs);
+console.log(storageArrayOfIDs.length);
 
 //place which will include list of products
 const sectionBody = document.querySelector('.section-body');
@@ -16,8 +18,13 @@ sectionBody.addEventListener('change', changeBucketsList);
 //get content parts
 const contentMain = document.querySelector('.content-main');
 const contentBucket = document.querySelector('.content-bucket');
-// console.log(contentMain);
-// console.log(contentBucket);
+let goal;
+
+
+//pagination
+let pagination = document.querySelector('.pagination');
+// console.log(pagination);
+pagination.addEventListener('click', changePage);
 
 
 function sendRequest(url) {
@@ -33,13 +40,13 @@ function sendRequest(url) {
     });
 }
 
-function createRequest(goal) {
+function createRequest() {
     switch (goal) {
-        case 'pagination':
+        case 'list':
             return url + 'page=' + page + '&per_page=' + countOfBeersPerPage;
             break;
-        case 'listing':
-            return url + 'ids=' + localStorage.getItem('listOfIDs');
+        case 'bucket':
+            return url + 'ids=' + localStorage.getItem('listOfIDs').split('|').slice(countOfBeersPerPage * (page - 1)).join('|');
             break;
     }
 }
@@ -55,24 +62,25 @@ function createElement(tag, appendParameter, className, text = null, src = null,
     return elem;
 }
 
-function createListOfProducts(goal) {
-    sendRequest(createRequest(goal))
+function createListOfProducts() {
+    return sendRequest(createRequest())
         .then(data => {
             const listOfProducts = data;
             // console.log(listOfProducts);
             // console.log(listOfProducts.length);
-            for (let i = 0; i < listOfProducts.length; i++) {
-                let sectionBodyItem = createElement('div', sectionBody, 'section-body-item');
-                createElement('img', sectionBodyItem, 'section-body-item__pic', null, listOfProducts[i].image_url);
-                let sectionBodyItemAnnotation = createElement('div', sectionBodyItem, 'section-body-item-annotation');
-                createElement('h1', sectionBodyItemAnnotation, 'section-body-item-annotation__name', listOfProducts[i].name);
-                createElement('h2', sectionBodyItemAnnotation, 'section-body-item-annotation__tagline', listOfProducts[i].tagline);
-                createElement('h4', sectionBodyItemAnnotation, 'section-body-item-annotation__description', listOfProducts[i].description);
-                let label = createElement('label', sectionBodyItemAnnotation, 'container-checkbox', 'Add');
-                createElement('input', label, 'container-checkbox__checkbox', null, null, 'checkbox', `${listOfProducts[i].id}`);
-                createElement('span', label, 'container-checkbox__checkmark');
+            for (let i = 0; i < countOfBeersPerPage; i++) {
+                if (listOfProducts[i]) {
+                    let sectionBodyItem = createElement('div', sectionBody, 'section-body-item');
+                    createElement('img', sectionBodyItem, 'section-body-item__pic', null, listOfProducts[i].image_url);
+                    let sectionBodyItemAnnotation = createElement('div', sectionBodyItem, 'section-body-item-annotation');
+                    createElement('h1', sectionBodyItemAnnotation, 'section-body-item-annotation__name', listOfProducts[i].name);
+                    createElement('h2', sectionBodyItemAnnotation, 'section-body-item-annotation__tagline', listOfProducts[i].tagline);
+                    createElement('h4', sectionBodyItemAnnotation, 'section-body-item-annotation__description', listOfProducts[i].description);
+                    let label = createElement('label', sectionBodyItemAnnotation, 'container-checkbox', 'Add');
+                    createElement('input', label, 'container-checkbox__checkbox', null, null, 'checkbox', `${listOfProducts[i].id}`);
+                    createElement('span', label, 'container-checkbox__checkmark');
+                }
             }
-            putTickOnProducts();
         })
         .catch(err => console.error(err));
 }
@@ -90,8 +98,18 @@ function sortSet(set) {
 }
 
 function downloadPage() {
-    if (contentMain) createListOfProducts('pagination');
-    if (contentBucket) createListOfProducts('listing');
+    if (contentMain) {
+        goal = 'list';
+        createListOfProducts(goal)
+            .then(() => putTickOnProducts())
+            .then(() => createPagination(goal));
+    }
+    if (contentBucket) {
+        goal = 'bucket';
+        createListOfProducts(goal)
+            .then(() => putTickOnProducts())
+            .then(() => createPagination(goal));
+    }
 }
 
 function putTickOnProducts() {
@@ -100,6 +118,46 @@ function putTickOnProducts() {
         if (setOfIDs.has(Number(products[i].getAttribute('position')))) {
             products[i].checked = true;
         }
+    }
+}
+
+function createPagination() {
+    switch (goal) {
+        case 'list':
+            for (let i = 0; i < maxCountOfPages; i++) {
+                i === 0 ?
+                    createElement('a', pagination, 'pagination__next-page', `${i+1}`).classList.add('pagination__next-page_active') :
+                    createElement('a', pagination, 'pagination__next-page', `${i+1}`);
+            }
+            break;
+        case 'bucket':
+            for (let i = 0; i < Math.ceil(storageArrayOfIDs.length/countOfBeersPerPage); i++) {
+                i === 0 ?
+                    createElement('a', pagination, 'pagination__next-page', `${i+1}`).classList.add('pagination__next-page_active') :
+                    createElement('a', pagination, 'pagination__next-page', `${i+1}`);
+            }
+    }
+}
+
+function changePage(elem) {
+    let target = elem.target;
+    if (target.className === 'pagination__next-page' && page !== Number(target.innerText)) {
+        page = target.innerText;
+        changedPagesNumbersStyle(target);
+        deleteList();
+        createListOfProducts(goal).then(() => putTickOnProducts())
+    }
+}
+
+function changedPagesNumbersStyle(target) {
+    document.querySelector('.pagination__next-page_active').classList.remove('pagination__next-page_active');
+    target.classList.add('pagination__next-page_active');
+}
+
+function deleteList() {
+    let bodyItemsArr = document.querySelectorAll('.section-body-item');
+    for (let i = 0;  i < bodyItemsArr.length; i++) {
+        bodyItemsArr[i].remove();
     }
 }
 

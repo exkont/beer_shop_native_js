@@ -9,6 +9,7 @@ body {
     padding: 0 0.625rem;
     display: flex;
     flex-direction: column;
+    font-family: Arial;
 }
 
 .header {
@@ -135,4 +136,19 @@ body {
     -webkit-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+.pagination__next-page {
+    margin: 0 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.pagination__next-page.pagination__next-page_active {
+    color: crimson;
 }
