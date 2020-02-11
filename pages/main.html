@@ -8,6 +8,9 @@
 <body>
 <div class="content-main">
     <header class="header">
+        <a href="#" class="">
+            <button class="registration-button">Registration</button>
+        </a>
         <a href="./bucket.html" class="next-section">
             <div class="next-section-content">
                 <img src="../images/bucket.jpg" alt="bucket.jpg" class="next-section-content__preview">
@@ -51,6 +54,39 @@
     </div>
     <div class="pagination">
 
+    </div>
+    <div class="wrapper-popup-registration">
+
+    </div>
+    <div class="popup-registration">
+        <a href="#"><span class="popup-registration__cross">x</span></a>
+        <form action="" class="registration-form">
+            <h1 class="registration-form__title">Registration form</h1>
+            <label for="email" class="registration-form__label registration-form__label_email">Email</label>
+            <input type="text" class="registration-form__input-email">
+            <span class="text-error registration-form__email-error"></span>
+            <br>
+            <label for="password" class="registration-form__label registration-form__label_password">Password</label>
+            <input type="password" class="registration-form__input-password">
+            <span class="text-error registration-form__password-error"></span>
+            <br>
+            <label for="password-repeat" class="registration-form__label registration-form__label_password">Password repeat</label>
+            <input type="password" class="registration-form__input-password">
+            <span class="text-error registration-form__password-error"></span>
+            <br>
+            <label for="first-name" class="registration-form__label registration-form__label_first-name">First Name</label>
+            <input type="text" class="registration-form__input-name">
+            <span class="text-error registration-form__first-name-error"></span>
+            <br>
+            <label for="last-name" class="registration-form__label registration-form__label_last-name">Last Name</label>
+            <input type="text" class="registration-form__input-name">
+            <span class="text-error registration-form__last-name-error"></span>
+            <br>
+            <label for="password-repeat" class="registration-form__label registration-form__label_password">Birthday</label>
+            <input type="date" class="registration-form__input-birthday">
+            <br>
+            <button type="submit" class="registration-form__button-submit">Registration</button>
+        </form>
     </div>
 </div>
 </body>

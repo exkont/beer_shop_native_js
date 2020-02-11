@@ -16,7 +16,6 @@ const searchData = {
     checkedSearchingField: Array.from(document.getElementsByClassName('form_radio_btn__btn')),
     searchingString:  document.getElementsByClassName('search-string__input')[0],
     filteredDownloadedData: [],
-    // searchingParameters: [],
     getCheckedButton: function () {
         return this.checkedSearchingField.filter(elem => elem.checked)[0].value;
     },
@@ -27,6 +26,11 @@ const searchData = {
         this.filteredDownloadedData = [];
     }
 };
+
+//header
+const header = document.querySelector('.header');
+const registrationButton = document.querySelector('.registration-button');
+registrationButton.addEventListener('click', showPopUp);
 
 //get finding parts
 const findingSection = document.querySelector('.finding-section');
@@ -45,6 +49,11 @@ const contentBucket = document.querySelector('.content-bucket');
 let pagination = document.querySelector('.pagination');
 pagination.addEventListener('click', changePage);
 
+//popup registration menu
+const wrapperPopupRegistration = document.querySelector('.wrapper-popup-registration');
+const popupRegistration = document.querySelector('.popup-registration');
+const popUpCross = document.querySelector('.popup-registration__cross');
+let isShowPopUp = true;
 
 function sendRequest(url) {
     return fetch(url).then(response => {
@@ -203,7 +212,6 @@ function deleteElements(selector) {
 }
 
 function searchProducts() {
-    // filterSearchRequest();
     if (searchData.getSearchString() !== '') {
         let goal = 'search';
         console.log('страница загружена');
@@ -256,8 +264,32 @@ function searchProducts() {
     }
 }
 
-function alerting() {
-    console.log(searchData.filteredDownloadedData);
+function showPopUp(elem) {
+    let target = elem.target;
+    if (target.className === 'registration-button') {
+        header.style.opacity = 0.2;
+        findingSection.style.opacity = 0.2;
+        sectionBody.style.opacity = 0.2;
+        pagination.style.opacity = 0.2;
+        wrapperPopupRegistration.style.display = 'block';
+        popupRegistration.style.display = 'flex';
+        registrationButton.removeEventListener('click', showPopUp);
+        wrapperPopupRegistration.addEventListener('click', showPopUp);
+        popUpCross.addEventListener('click', showPopUp);
+        isShowPopUp = !isShowPopUp;
+    } else {                                                //    } else if (target.className !== 'popup-registration') {
+        header.style.opacity = 1;
+        findingSection.style.opacity = 1;
+        sectionBody.style.opacity = 1;
+        pagination.style.opacity = 1;
+        wrapperPopupRegistration.style.display = 'none';
+        popupRegistration.style.display = 'none';
+        wrapperPopupRegistration.removeEventListener('click', showPopUp);
+        popUpCross.removeEventListener('click', showPopUp);
+        registrationButton.addEventListener('click', showPopUp);
+        isShowPopUp = !isShowPopUp;
+
+    }
 }
 
 downloadPage();
