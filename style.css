@@ -77,6 +77,12 @@ body {
     color: #666;
 }
 
+.search-string__input {
+    height: 30px;
+    border-radius: 6px;
+    font: 400 20px Arial;
+}
+
 .section-body {
 
 }
@@ -179,12 +185,14 @@ body {
     justify-content: center;
 }
 
-.pagination__next-page {
+.pagination__next-page-list,
+.pagination__next-page-bucket,
+.pagination__next-page-search {
     margin: 0 10px;
     font-size: 20px;
     cursor: pointer;
 }
 
-.pagination__next-page.pagination__next-page_active {
+.pagination__next-page_active {
     color: crimson;
 }
