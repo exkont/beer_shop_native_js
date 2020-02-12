@@ -2,8 +2,8 @@ const url = 'https://api.punkapi.com/v2/beers?';
 
 //data for urls for pagination requesting
 let page = 1;
-let maxCountOfPages = 5;
-let countOfBeersPerPage = 20;
+let maxCountOfPages = 5;        //this parameter can be const but in future this parameter can change
+let countOfBeersPerPage = 20;   //this parameter can be const too but in future this parameter can change
 
 //bucket data
 let storageArrayOfIDs = localStorage.getItem('listOfIDs') ?
@@ -14,7 +14,7 @@ let setOfIDs = new Set(storageArrayOfIDs);
 let search = [];
 const searchData = {
     checkedSearchingField: Array.from(document.getElementsByClassName('form_radio_btn__btn')),
-    searchingString:  document.getElementsByClassName('search-string__input')[0],
+    searchingString: document.getElementsByClassName('search-string__input')[0],
     filteredDownloadedData: [],
     getCheckedButton: function () {
         return this.checkedSearchingField.filter(elem => elem.checked)[0].value;
@@ -30,7 +30,7 @@ const searchData = {
 //header
 const header = document.querySelector('.header');
 const registrationButton = document.querySelector('.registration-button');
-registrationButton.addEventListener('click', showPopUp);
+if (registrationButton) registrationButton.addEventListener('click', showPopUp);
 
 //get finding parts
 const findingSection = document.querySelector('.finding-section');
@@ -52,8 +52,24 @@ pagination.addEventListener('click', changePage);
 //popup registration menu
 const wrapperPopupRegistration = document.querySelector('.wrapper-popup-registration');
 const popupRegistration = document.querySelector('.popup-registration');
+if (popupRegistration) popupRegistration.addEventListener('input', setClassForValidate);
+if (popupRegistration) popupRegistration.addEventListener('click', checkElementsClassesForValidate);
 const popUpCross = document.querySelector('.popup-registration__cross');
 let isShowPopUp = true;
+
+//next two elements must be const. but i use two html files with one js and one of html-files will give me error,
+// because he haven't this element, that is why i use "wrapper" with construct 'if', but const will lost only in {}
+if (popupRegistration) {
+    var registrationInputs = popupRegistration.getElementsByTagName('input');
+    var submitButton = popupRegistration.getElementsByClassName('registration-form__button-submit');
+    submitButton[0].addEventListener('click', submitForm);
+}
+
+
+const validatorsData = {
+    emailValidator: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    errorFields: document.getElementsByClassName('registration-form__text-error')
+};
 
 function sendRequest(url) {
     return fetch(url).then(response => {
@@ -93,13 +109,13 @@ function createElement(tag, appendParameter, className, text = null, src = null,
 function createListOfProducts(listOfProducts) {
     for (let i = 0; i < countOfBeersPerPage; i++) {
         if (listOfProducts[i]) {
-            let sectionBodyItem = createElement('div', sectionBody, 'section-body-item');
+            const sectionBodyItem = createElement('div', sectionBody, 'section-body-item');
             createElement('img', sectionBodyItem, 'section-body-item__pic', null, listOfProducts[i].image_url);
-            let sectionBodyItemAnnotation = createElement('div', sectionBodyItem, 'section-body-item-annotation');
+            const sectionBodyItemAnnotation = createElement('div', sectionBodyItem, 'section-body-item-annotation');
             createElement('h1', sectionBodyItemAnnotation, 'section-body-item-annotation__name', listOfProducts[i].name);
             createElement('h2', sectionBodyItemAnnotation, 'section-body-item-annotation__tagline', listOfProducts[i].tagline);
             createElement('h4', sectionBodyItemAnnotation, 'section-body-item-annotation__description', listOfProducts[i].description);
-            let label = createElement('label', sectionBodyItemAnnotation, 'container-checkbox', 'Add');
+            const label = createElement('label', sectionBodyItemAnnotation, 'container-checkbox', 'Add');
             createElement('input', label, 'container-checkbox__checkbox', null, null, 'checkbox', `${listOfProducts[i].id}`);
             createElement('span', label, 'container-checkbox__checkmark');
         }
@@ -192,7 +208,7 @@ function changePage(elem) {
                 break;
             case 'pagination__next-page-search':
                 goal = 'search';
-                createListOfProducts(searchData.filteredDownloadedData.slice((page-1) * countOfBeersPerPage, (page-1) * countOfBeersPerPage + 20));
+                createListOfProducts(searchData.filteredDownloadedData.slice((page - 1) * countOfBeersPerPage, (page - 1) * countOfBeersPerPage + 20));
                 putTickOnProducts();
         }
         changedPagesNumbersStyle(target);
@@ -224,11 +240,11 @@ function searchProducts() {
                 const response = await fetch(url);
                 const answers = await response.json();
                 if (answers.length === 0) {
-                    console.log('Streams have no more data');
+                    console.log('больше нет данных, удовлетворяющих поиск');
                     return;
                 }
                 page++;
-                for(let answer of answers) {
+                for (let answer of answers) {
                     yield answer;
                 }
             }
@@ -259,37 +275,100 @@ function searchProducts() {
             .then(() => createPagination(goal));
     } else if (searchData.getSearchString() === '') {
         downloadPage();
-        console.log('страница по умолчанию');
-        console.log(searchData.getSearchString() === '');
+        console.log('страница по умолчанию. т.е без запроса');
     }
 }
 
 function showPopUp(elem) {
     let target = elem.target;
     if (target.className === 'registration-button') {
-        header.style.opacity = 0.2;
-        findingSection.style.opacity = 0.2;
-        sectionBody.style.opacity = 0.2;
-        pagination.style.opacity = 0.2;
         wrapperPopupRegistration.style.display = 'block';
         popupRegistration.style.display = 'flex';
         registrationButton.removeEventListener('click', showPopUp);
         wrapperPopupRegistration.addEventListener('click', showPopUp);
         popUpCross.addEventListener('click', showPopUp);
-        isShowPopUp = !isShowPopUp;
     } else {                                                //    } else if (target.className !== 'popup-registration') {
-        header.style.opacity = 1;
-        findingSection.style.opacity = 1;
-        sectionBody.style.opacity = 1;
-        pagination.style.opacity = 1;
         wrapperPopupRegistration.style.display = 'none';
         popupRegistration.style.display = 'none';
         wrapperPopupRegistration.removeEventListener('click', showPopUp);
         popUpCross.removeEventListener('click', showPopUp);
         registrationButton.addEventListener('click', showPopUp);
-        isShowPopUp = !isShowPopUp;
-
     }
+    isShowPopUp = !isShowPopUp;
+}
+
+function setClassForValidate(elem) {
+    elem.target.classList.add('touched');
+    checkElementsClassesForValidate(elem.target);
+}
+
+function checkElementsClassesForValidate(excludingElem) {
+    for (let i = 0; i < registrationInputs.length; i++) {
+        if ((registrationInputs[i].className !== excludingElem.className) &&
+            (registrationInputs[i]).className.indexOf('touched') !== -1) {
+            validate((registrationInputs[i]), i);
+        }
+    }
+}
+
+function validate(validatingElem, i) {
+    switch (validatingElem.name) {
+        case 'email':
+            !validatorsData.emailValidator.test(validatingElem.value.toLowerCase()) ?
+                validatorsData.errorFields[i].innerHTML = 'you entered incorrect email' :
+                validatorsData.errorFields[i].innerHTML = '';
+            break;
+        case 'password':
+        case 'password-repeat':
+            validatingElem.value.length < 7 ?
+                validatorsData.errorFields[i].innerHTML = 'password must be more than 6 symbols' :
+                validatorsData.errorFields[i].innerHTML = '';
+            break;
+        case 'first-name':
+        case 'last-name':
+            validatingElem.value.length < 5 ?
+                validatorsData.errorFields[i].innerHTML = 'your name must be longer than 5 symbols' :
+                validatorsData.errorFields[i].innerHTML = '';
+            break;
+        case 'date':
+            console.log(validatingElem.value + ' date');
+            validatingElem.value === '' ?
+                validatorsData.errorFields[i].innerHTML = 'you didn\'t chose date' :
+                validatorsData.errorFields[i].innerHTML = '';
+    }
+    if ((registrationInputs[1].className.indexOf('touched') !== -1) &&
+        (registrationInputs[2].className.indexOf('touched') !== -1)) {
+        isFieldsHaveEqualValue(registrationInputs[1], registrationInputs[2]);
+    }
+    submitButton[0].disabled = !isCorrectForm();
+}
+
+function isFieldsHaveEqualValue(...elements) {
+    switch (elements[0].name) {
+        case 'password':
+        case 'password-repeat':
+            if (elements[0].value !== elements[1].value) {
+                elements[0].nextSibling.nextSibling.innerHTML = elements[0].nextSibling.nextSibling.innerHTML === '' ?
+                    'passwords are not equal' : 'password must be more than 6 symbols passwords are not equal';
+                elements[1].nextSibling.nextSibling.innerHTML = elements[1].nextSibling.nextSibling.innerHTML === '' ?
+                    'passwords are not equal' : 'password must be more than 6 symbols passwords are not equal';
+            }
+    }
+}
+
+function isCorrectForm() {
+    for (let i = 0; i < registrationInputs.length; i++) {
+        if ((registrationInputs[i].value === '') || (validatorsData.errorFields[i].innerHTML !== '')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function submitForm() {
+    console.log('submit!');
+    deleteElements('.registration-button');
+    createElement('div', header, 'user-name', `Thank you for registration, ${registrationInputs[3].value} ${registrationInputs[4].value}`);
 }
 
 downloadPage();
